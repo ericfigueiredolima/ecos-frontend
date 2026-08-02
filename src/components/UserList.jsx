@@ -1,40 +1,44 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import api from '../services/api';
 
+// Note o uso de 'export function' para casar com a importação { UserList }
 export function UserList() {
-  const [usuarios, setUsuarios] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [erro, setErro] = useState(null);
 
   useEffect(() => {
-    api.get('/usuarios')
+    api.get('/users')
       .then((response) => {
-        if (response.data.success) {
-          setUsuarios(response.data.data);
-        }
+        setUsers(response.data.data || response.data);
         setLoading(false);
       })
       .catch((err) => {
-        setErro('Erro ao carregar dados do servidor.');
+        console.error("Erro ao buscar usuários:", err);
         setLoading(false);
-        console.error(err);
       });
   }, []);
 
-  if (loading) return <p className="p-4 text-gray-500">Carregando dados do servidor...</p>;
-  if (erro) return <p className="p-4 text-red-500">{erro}</p>;
+  if (loading) return <p className="text-center p-4">Carregando usuários...</p>;
 
   return (
-    <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md space-y-4 my-8 border border-gray-100">
-      <h2 className="text-xl font-bold text-gray-800">Usuários cadastrados (Supabase)</h2>
-      <ul className="divide-y divide-gray-200 text-left">
-        {usuarios.map((user) => (
-          <li key={user.id} className="py-2 flex justify-between items-center">
-            <span className="font-medium text-gray-700">{user.nome}</span>
-            <span className="text-xs text-gray-400">ID: {user.id}</span>
-          </li>
-        ))}
-      </ul>
+    <div className="max-w-4xl mx-auto p-4">
+      <h2 className="text-xl font-bold mb-4 text-gray-800">Usuários cadastrados (Supabase)</h2>
+      <div className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
+        <ul className="divide-y divide-gray-200">
+          {users.map((user) => (
+            <li key={user.id} className="p-4 flex justify-between items-center hover:bg-gray-50">
+              <div>
+                <p className="font-semibold text-gray-900">{user.name}</p>
+                <p className="text-sm text-gray-500">{user.email}</p>
+                <p className="text-xs text-gray-400 mt-1">Criado em: {new Date(user.created_at).toLocaleDateString('pt-BR')}</p>
+              </div>
+              <span className="text-xs bg-blue-100 text-blue-800 px-2.5 py-1 rounded-full font-medium">
+                {user.role}
+              </span>
+            </li>
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }
