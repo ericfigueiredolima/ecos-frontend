@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { Navbar } from './components/Navbar';
+import { Sidebar } from './components/Sidebar';
 import { UsersPage } from './pages/UsersPage';
 import { EmployeesPage } from './pages/EmployeesPage';
 import { ProjectsPage } from './pages/ProjectsPage';
@@ -7,11 +7,13 @@ import { ProjectsPage } from './pages/ProjectsPage';
 export function App() {
   return (
     <BrowserRouter>
-      <div className="min-h-screen bg-gray-50 flex flex-col">
-        <Navbar />
-        <main className="flex-1 p-6">
+      {/* Container principal flexível em linha (Sidebar à esquerda, Conteúdo à direita) */}
+      <div className="min-h-screen bg-gray-50 flex">
+        <Sidebar />
+        
+        <main className="flex-1 p-6 overflow-y-auto">
           <Routes>
-            <Route path="/" element={<UsersPage />} />
+            <Route path="/users" element={<UsersPage />} />
             <Route path="/employees" element={<EmployeesPage />} />
             <Route path="/projects" element={<ProjectsPage />} />
           </Routes>
