@@ -12,6 +12,7 @@ export function Sidebar() {
     { name: 'Usuários', path: '/users', icon: '👤' },
     { name: 'Funcionários', path: '/employees', icon: '👥' },
     { name: 'Projetos', path: '/projects', icon: '📁' },
+    { name: 'Agenda', path: '/calendar', icon: '📅' }, // <- Adicionado aqui
   ];
 
   // Busca o usuário logado ao carregar o componente
