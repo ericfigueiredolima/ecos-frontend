@@ -6,6 +6,7 @@ import { ProjectsPage } from './pages/ProjectsPage';
 import { LoginPage } from './pages/LoginPage';
 import { ProtectedRoute } from './routes/ProtectedRoute';
 import { RoleProtectedRoute } from './routes/RoleProtectedRoute';
+import { ProjectsCalendarPage } from './pages/ProjectsCalendarPage';
 
 // Layout para as páginas internas que possuem a Sidebar
 function InternalLayout() {
@@ -18,6 +19,7 @@ function InternalLayout() {
                     <Route path="/users" element={<UsersPage />} />
                     <Route path="/employees" element={<EmployeesPage />} />
                     <Route path="/projects" element={<ProjectsPage />} />
+                    <Route path="/calendar" element={<ProjectsCalendarPage />} />
                 </Routes>
             </main>
         </div>
