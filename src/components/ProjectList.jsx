@@ -13,6 +13,7 @@ export function ProjectList() {
         description: '',
         status: '',
         start_date: '',
+        end_date: '', // <- Adicionado
         employee_ids: []
     });
 
@@ -38,7 +39,6 @@ export function ProjectList() {
     }, []);
 
     const handleOpenModal = (project = null) => {
-        console.log("Abrindo modal para:", project ? project.title : "Novo Projeto");
         if (project) {
             setEditingProject(project);
             setFormData({
@@ -46,11 +46,12 @@ export function ProjectList() {
                 description: project.description || '',
                 status: project.status || '',
                 start_date: project.start_date ? project.start_date.split('T')[0] : '',
+                end_date: project.end_date ? project.end_date.split('T')[0] : '', // <- Adicionado
                 employee_ids: project.employees ? project.employees.map(e => e.id) : []
             });
         } else {
             setEditingProject(null);
-            setFormData({ title: '', description: '', status: '', start_date: '', employee_ids: [] });
+            setFormData({ title: '', description: '', status: '', start_date: '', end_date: '', employee_ids: [] });
         }
         setIsModalOpen(true);
     };
@@ -148,7 +149,7 @@ export function ProjectList() {
                 </ul>
             </div>
 
-            {/* Modal Flutuante com Garantia de Exibição */}
+            {/* Modal Flutuante */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 p-4 overflow-y-auto">
                     <div className="bg-white rounded-xl shadow-2xl max-w-md w-full p-6 max-h-[90vh] flex flex-col relative my-auto">
@@ -185,14 +186,25 @@ export function ProjectList() {
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">Data de Início</label>
-                                <input
-                                    type="date"
-                                    value={formData.start_date}
-                                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                />
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Data de Início</label>
+                                    <input
+                                        type="date"
+                                        value={formData.start_date}
+                                        onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Data Final</label>
+                                    <input
+                                        type="date"
+                                        value={formData.end_date}
+                                        onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    />
+                                </div>
                             </div>
 
                             <div>
