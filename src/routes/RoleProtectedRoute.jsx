@@ -30,34 +30,53 @@ export function RoleProtectedRoute() {
         async function fetchUserRole() {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
-                console.log("LOG - Sessão atual do Supabase:", session);
-
+                
                 if (session?.user?.email) {
                     const userEmail = session.user.email;
-                    console.log("LOG - Buscando role para o e-mail:", userEmail);
+                    const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || userEmail.split('@')[0];
 
-                    // Trocado .single() por .maybeSingle() para evitar erro 406 caso venha vazio
-                    const { data, error } = await supabase
+                    // 1. Tenta buscar o usuário na tabela public.users
+                    let { data, error } = await supabase
                         .from('users')
                         .select('role')
                         .eq('email', userEmail)
                         .maybeSingle();
 
-                    console.log("LOG - Resposta da query users:", { data, error });
+                    // 2. Se o usuário não existe, cadastra chamando a API do backend
+                    if (!data && !error) {
+                        console.log("Usuário não encontrado. Cadastrando via backend...");
+                        try {
+                            const response = await fetch('http://localhost:3000/api/users', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                },
+                                body: JSON.stringify({
+                                    name: userName,
+                                    email: userEmail,
+                                    role: 'não autorizado'
+                                })
+                            });
 
-                    if (error || !data) {
-                        console.error("Erro ao buscar role no Supabase:", error);
+                            const result = await response.json();
+                            if (result.success) {
+                                data = { role: 'não autorizado' };
+                            }
+                        } catch (apiError) {
+                            console.error("Erro ao cadastrar usuário no backend:", apiError);
+                        }
+                    }
+
+                    if (!data) {
                         setUserRole('não autorizado');
                     } else {
-                        console.log("LOG - Role encontrada com sucesso:", data.role);
                         setUserRole(data.role);
                     }
                 } else {
-                    console.log("LOG - Nenhum e-mail encontrado na sessão.");
                     setUserRole('não autorizado');
                 }
             } catch (error) {
-                console.error("Erro crítico ao buscar função do usuário:", error);
+                console.error("Erro crítico ao gerenciar função do usuário:", error);
                 setUserRole('não autorizado');
             } finally {
                 setLoading(false);
