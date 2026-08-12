@@ -1,6 +1,16 @@
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = 'https://vjpxzcilschmyssngoiox.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_6aBQDC0krDlG8Vn096sg_g_zDPk-TaC'; // Insira sua chave anon/public do painel do Supabase
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_PUBLISHABLE_KEY =
+  import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+console.log('SUPABASE_URL:', SUPABASE_URL);
+console.log(
+  'SUPABASE KEY:',
+  SUPABASE_PUBLISHABLE_KEY ? 'OK' : 'AUSENTE'
+);
+
+export const supabase = createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
