@@ -26,6 +26,36 @@ const messages = {
     showMore: total => `+ mais (${total})`
 };
 
+// Função para definir uma cor dinâmica com base no ID do projeto
+const getEventStyle = (event) => {
+    const colors = [
+        { bg: '#2563eb', border: '#1d4ed8' }, // Azul
+        { bg: '#059669', border: '#047857' }, // Verde
+        { bg: '#d97706', border: '#b45309' }, // Laranja/Amarelo
+        { bg: '#7c3aed', border: '#6d28d9' }, // Roxo
+        { bg: '#db2777', border: '#be185d' }, // Rosa
+    ];
+
+    let colorIndex = 0;
+    if (event.resource && event.resource.id) {
+        const charCodeSum = String(event.resource.id).split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        colorIndex = charCodeSum % colors.length;
+    }
+
+    const selectedColor = colors[colorIndex];
+
+    return {
+        style: {
+            backgroundColor: selectedColor.bg,
+            borderColor: selectedColor.border,
+            borderRadius: '6px',
+            color: '#fff',
+            border: '0px',
+            display: 'block'
+        }
+    };
+};
+
 export function ProjectsCalendarPage() {
     const [events, setEvents] = useState([]);
     const [projects, setProjects] = useState([]);
@@ -128,7 +158,8 @@ export function ProjectsCalendarPage() {
                         onView={onView}
                         views={['month']}
                         messages={messages}
-                        onSelectEvent={handleSelectEvent} // <--- Ativa o clique no evento
+                        onSelectEvent={handleSelectEvent}
+                        eventPropGetter={getEventStyle} // <--- Cores dinâmicas aplicadas
                         popup
                     />
                 ) : (
