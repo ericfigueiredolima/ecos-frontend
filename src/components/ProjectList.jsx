@@ -4,6 +4,7 @@ import api from '../services/api';
 export function ProjectList() {
     const [projects, setProjects] = useState([]);
     const [employees, setEmployees] = useState([]);
+    const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,19 +14,22 @@ export function ProjectList() {
         description: '',
         status: '',
         start_date: '',
-        end_date: '', // <- Adicionado
-        employee_ids: []
+        end_date: '',
+        employee_ids: [],
+        user_ids: [] // <- Adicionado para suportar usuários admin/collaborator
     });
 
     const fetchData = () => {
         setLoading(true);
         Promise.all([
             api.get('/projects'),
-            api.get('/employees')
+            api.get('/employees'),
+            api.get('/users') // Busca também os usuários
         ])
-            .then(([projRes, empRes]) => {
+            .then(([projRes, empRes, userRes]) => {
                 setProjects(projRes.data.data || projRes.data);
                 setEmployees(empRes.data.data || empRes.data);
+                setUsers(userRes.data.data || userRes.data);
                 setLoading(false);
             })
             .catch((err) => {
@@ -46,12 +50,21 @@ export function ProjectList() {
                 description: project.description || '',
                 status: project.status || '',
                 start_date: project.start_date ? project.start_date.split('T')[0] : '',
-                end_date: project.end_date ? project.end_date.split('T')[0] : '', // <- Adicionado
-                employee_ids: project.employees ? project.employees.map(e => e.id) : []
+                end_date: project.end_date ? project.end_date.split('T')[0] : '',
+                employee_ids: project.employees ? project.employees.map(e => e.id) : [],
+                user_ids: project.users ? project.users.map(u => u.id) : [] // Carrega usuários vinculados se houver
             });
         } else {
             setEditingProject(null);
-            setFormData({ title: '', description: '', status: '', start_date: '', end_date: '', employee_ids: [] });
+            setFormData({ 
+                title: '', 
+                description: '', 
+                status: '', 
+                start_date: '', 
+                end_date: '', 
+                employee_ids: [], 
+                user_ids: [] 
+            });
         }
         setIsModalOpen(true);
     };
@@ -70,11 +83,21 @@ export function ProjectList() {
         }
     };
 
+    const handleUserToggle = (userId) => {
+        const currentIds = formData.user_ids;
+        if (currentIds.includes(userId)) {
+            setFormData({ ...formData, user_ids: currentIds.filter(id => id !== userId) });
+        } else {
+            setFormData({ ...formData, user_ids: [...currentIds, userId] });
+        }
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         const payload = {
             ...formData,
-            employees: formData.employee_ids
+            employees: formData.employee_ids,
+            users: formData.user_ids // Envia os IDs dos usuários para o backend
         };
 
         const action = editingProject
@@ -116,12 +139,15 @@ export function ProjectList() {
                 <ul className="divide-y divide-gray-200">
                     {projects.map((proj) => {
                         const employeeCount = proj.employees ? proj.employees.length : 0;
+                        const userCount = proj.users ? proj.users.length : 0;
+                        const totalLinked = employeeCount + userCount;
+
                         return (
                             <li key={proj.id} className="p-4 flex justify-between items-center">
                                 <div>
                                     <p className="font-semibold text-gray-900">{proj.title}</p>
                                     <p className="text-sm text-gray-500">
-                                        Status: {proj.status || 'N/A'} | Funcionários vinculados: {employeeCount}
+                                        Status: {proj.status || 'N/A'} | Envolvidos vinculados: {totalLinked}
                                     </p>
                                 </div>
                                 <div className="flex items-center space-x-2">
@@ -207,9 +233,10 @@ export function ProjectList() {
                                 </div>
                             </div>
 
+                            {/* Seção de Funcionários */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Funcionários Vinculados</label>
-                                <div className="max-h-36 overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 bg-gray-50">
+                                <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 bg-gray-50">
                                     {employees.map((emp) => (
                                         <label key={emp.id} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer hover:bg-white p-1.5 rounded transition-colors">
                                             <input
@@ -223,6 +250,27 @@ export function ProjectList() {
                                     ))}
                                     {employees.length === 0 && (
                                         <p className="text-xs text-gray-500 text-center py-2">Nenhum funcionário cadastrado.</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Seção de Usuários (Admin / Collaborator) */}
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">Usuários Vinculados (Admin / Collaborator)</label>
+                                <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 bg-gray-50">
+                                    {users.map((usr) => (
+                                        <label key={usr.id} className="flex items-center space-x-2 text-sm text-gray-700 cursor-pointer hover:bg-white p-1.5 rounded transition-colors">
+                                            <input
+                                                type="checkbox"
+                                                checked={formData.user_ids.includes(usr.id)}
+                                                onChange={() => handleUserToggle(usr.id)}
+                                                className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            />
+                                            <span>{usr.name || usr.email} <span className="text-xs text-gray-400">({usr.role || 'user'})</span></span>
+                                        </label>
+                                    ))}
+                                    {users.length === 0 && (
+                                        <p className="text-xs text-gray-500 text-center py-2">Nenhum usuário cadastrado.</p>
                                     )}
                                 </div>
                             </div>

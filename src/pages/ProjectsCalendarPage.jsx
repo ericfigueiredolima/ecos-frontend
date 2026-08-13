@@ -102,19 +102,24 @@ export function ProjectsCalendarPage() {
                                     <th className="p-3 font-semibold">Período / Data</th>
                                     <th className="p-3 font-semibold">Projeto</th>
                                     <th className="p-3 font-semibold">Status</th>
-                                    <th className="p-3 font-semibold">Funcionários Envolvidos</th>
+                                    <th className="p-3 font-semibold">Envolvidos</th> {/* Renomeado */}
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
                                 {projects.map((proj) => {
-                                    const employeesNames = proj.employees && proj.employees.length > 0
-                                        ? proj.employees.map(e => e.full_name).join(', ')
-                                        : 'Nenhum funcionário vinculado';
+                                    // Lógica para listar funcionários E usuários
+                                    const employeeNames = proj.employees ? proj.employees.map(e => e.full_name) : [];
+                                    const userNames = proj.users ? proj.users.map(u => u.name || u.email) : [];
+
+                                    const allNames = [...employeeNames, ...userNames];
+                                    const displayNames = allNames.length > 0
+                                        ? allNames.join(', ')
+                                        : 'Nenhum responsável vinculado';
 
                                     return (
                                         <tr key={proj.id} className="hover:bg-gray-50 transition-colors">
                                             <td className="p-3 text-gray-600 whitespace-nowrap">
-                                                {moment(proj.start_date).format('DD/MM/YYYY')} 
+                                                {moment(proj.start_date).format('DD/MM/YYYY')}
                                                 {proj.end_date ? ` até ${moment(proj.end_date).format('DD/MM/YYYY')}` : ''}
                                             </td>
                                             <td className="p-3 font-medium text-gray-900">{proj.title}</td>
@@ -123,17 +128,11 @@ export function ProjectsCalendarPage() {
                                                     {proj.status || 'N/A'}
                                                 </span>
                                             </td>
-                                            <td className="p-3 text-gray-600">{employeesNames}</td>
+                                            <td className="p-3 text-gray-600">{displayNames}</td>
                                         </tr>
                                     );
                                 })}
-                                {projects.length === 0 && (
-                                    <tr>
-                                        <td colSpan="4" className="p-6 text-center text-gray-500">
-                                            Nenhum projeto encontrado.
-                                        </td>
-                                    </tr>
-                                )}
+                                {/* ... restante do código */}
                             </tbody>
                         </table>
                     </div>
