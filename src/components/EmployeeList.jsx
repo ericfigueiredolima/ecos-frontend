@@ -87,9 +87,16 @@ export function EmployeeList() {
   if (loading) return <p className="p-4">Carregando funcionários...</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-        <h2 className="text-xl font-bold text-gray-800">Funcionários Cadastrados</h2>
+    <div className="max-w-4xl mx-auto p-4 relative">
+      {/* Título centralizado e alinhado ao topo com o botão de menu */}
+      <div className="relative flex items-center justify-center mb-6 pt-2">
+        <h2 className="text-xl font-bold text-gray-800 text-center">
+          Funcionários Cadastrados
+        </h2>
+      </div>
+
+      {/* Botão de Novo Funcionário isolado para preencher a largura de forma elegante */}
+      <div className="flex justify-end mb-4">
         <button
           type="button"
           onClick={() => handleOpenModal()}

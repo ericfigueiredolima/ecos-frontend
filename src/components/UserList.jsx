@@ -70,9 +70,15 @@ export function UserList() {
 
     return (
         <div className="max-w-5xl mx-auto p-4 space-y-6">
-            <div className="flex justify-between items-center">
-                <h1 className="text-2xl font-bold text-gray-800">Gerenciamento de Usuários</h1>
-                {/* Botão de Novo Usuário removido, pois o login é feito via Google */}
+            <div className="max-w-4xl mx-auto p-4 relative">
+                {/* Cabeçalho alinhado com o botão de menu e centralizado */}
+                <div className="relative flex items-center justify-center mb-6 pt-1 md:pt-0">
+                    <h2 className="text-xl font-bold text-gray-800 text-center">
+                        Gerenciamento de Usuários
+                    </h2>
+                </div>
+
+                {/* Resto do conteúdo da página... */}
             </div>
 
             <div className="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden p-6">

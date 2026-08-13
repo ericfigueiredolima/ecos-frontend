@@ -56,14 +56,14 @@ export function ProjectList() {
             });
         } else {
             setEditingProject(null);
-            setFormData({ 
-                title: '', 
-                description: '', 
-                status: '', 
-                start_date: '', 
-                end_date: '', 
-                employee_ids: [], 
-                user_ids: [] 
+            setFormData({
+                title: '',
+                description: '',
+                status: '',
+                start_date: '',
+                end_date: '',
+                employee_ids: [],
+                user_ids: []
             });
         }
         setIsModalOpen(true);
@@ -124,8 +124,17 @@ export function ProjectList() {
 
     return (
         <div className="max-w-4xl mx-auto p-4 relative">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
-                <h2 className="text-xl font-bold text-gray-800">Projetos Cadastrados</h2>
+            <div className="relative flex items-center justify-center mb-6 pt-2">
+                {/* Título centralizado no topo */}
+                <h2 className="text-xl font-bold text-gray-800 text-center">
+                    Projetos Cadastrados
+                </h2>
+
+                {/* Botão de ação (se ele precisar ficar alinhado à direita ou abaixo) */}
+                {/* Se quiser que o botão de "Novo Projeto" fique separado, mantenha-o fora deste flex ou abaixo dele */}
+            </div>
+
+            <div className="flex justify-end mb-4">
                 <button
                     type="button"
                     onClick={() => handleOpenModal()}
