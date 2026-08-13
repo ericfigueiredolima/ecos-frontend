@@ -12,7 +12,7 @@ export function RoleProtectedRoute({ children, allowedRoles }) {
         async function fetchUserRole() {
             try {
                 const { data: { session } } = await supabase.auth.getSession();
-                
+
                 if (session?.user?.email) {
                     const userEmail = session.user.email;
                     const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || userEmail.split('@')[0];
@@ -25,7 +25,9 @@ export function RoleProtectedRoute({ children, allowedRoles }) {
 
                     if (!data && !error) {
                         try {
-                            const response = await fetch('http://localhost:3000/api/users', {
+                            const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+                            const response = await fetch(`${backendUrl}/api/users`, {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
