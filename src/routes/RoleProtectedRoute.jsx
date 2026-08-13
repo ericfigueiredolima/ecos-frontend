@@ -6,6 +6,7 @@ import { Routes, Route } from 'react-router-dom';
 import { UsersPage } from '../pages/UsersPage';
 import { EmployeesPage } from '../pages/EmployeesPage';
 import { ProjectsPage } from '../pages/ProjectsPage';
+import { ProjectsCalendarPage } from '../pages/ProjectsCalendarPage'; // <- 1. Importação da página de agenda
 
 function InternalLayout() {
     return (
@@ -16,6 +17,7 @@ function InternalLayout() {
                     <Route path="/users" element={<UsersPage />} />
                     <Route path="/employees" element={<EmployeesPage />} />
                     <Route path="/projects" element={<ProjectsPage />} />
+                    <Route path="/calendar" element={<ProjectsCalendarPage />} /> {/* <- 2. Rota adicionada */}
                 </Routes>
             </main>
         </div>
