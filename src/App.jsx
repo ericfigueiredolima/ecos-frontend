@@ -11,10 +11,10 @@ import { ProjectsCalendarPage } from './pages/ProjectsCalendarPage';
 // Layout para as páginas internas que possuem a Sidebar
 function InternalLayout() {
     return (
-        <div className="min-h-screen bg-gray-50 flex">
+        <div className="min-h-screen bg-gray-50 flex flex-col md:flex-row relative overflow-x-hidden">
             <Sidebar />
 
-            <main className="flex-1 p-6 overflow-y-auto">
+            <main className="flex-1 p-4 md:p-6 overflow-y-auto w-full max-w-full">
                 <Routes>
                     <Route path="/users" element={<UsersPage />} />
                     <Route path="/employees" element={<EmployeesPage />} />
