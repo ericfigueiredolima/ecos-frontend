@@ -88,11 +88,12 @@ export function EmployeeList() {
 
   return (
     <div className="max-w-4xl mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
         <h2 className="text-xl font-bold text-gray-800">Funcionários Cadastrados</h2>
         <button
+          type="button"
           onClick={() => handleOpenModal()}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+          className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer w-full sm:w-auto"
         >
           + Novo Funcionário
         </button>
@@ -101,21 +102,25 @@ export function EmployeeList() {
       <div className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
         <ul className="divide-y divide-gray-200">
           {employees.map((emp) => (
-            <li key={emp.id} className="p-4 flex justify-between items-center">
-              <div>
-                <p className="font-semibold text-gray-900">{emp.full_name}</p>
-                <p className="text-sm text-gray-500">{emp.email} | Cargo: {emp.position}</p>
+            <li key={emp.id} className="p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-gray-900 truncate">{emp.full_name}</p>
+                <p className="text-sm text-gray-500 break-words">
+                  {emp.email} | Cargo: <span className="font-medium text-gray-700">{emp.position}</span>
+                </p>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex items-center space-x-2 self-end sm:self-auto">
                 <button
+                  type="button"
                   onClick={() => handleOpenModal(emp)}
-                  className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded text-xs font-medium transition-colors"
+                  className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer"
                 >
                   Editar
                 </button>
                 <button
+                  type="button"
                   onClick={() => handleDelete(emp.id)}
-                  className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-xs font-medium transition-colors"
+                  className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer"
                 >
                   Excluir
                 </button>
@@ -130,8 +135,8 @@ export function EmployeeList() {
 
       {/* Modal de Cadastro / Edição */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl">
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50 overflow-y-auto">
+          <div className="bg-white rounded-lg max-w-md w-full p-6 shadow-xl my-auto">
             <h3 className="text-lg font-bold text-gray-800 mb-4">
               {editingEmployee ? 'Editar Funcionário' : 'Novo Funcionário'}
             </h3>
@@ -177,13 +182,13 @@ export function EmployeeList() {
                 <button
                   type="button"
                   onClick={handleCloseModal}
-                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  className="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
                 >
                   Salvar
                 </button>

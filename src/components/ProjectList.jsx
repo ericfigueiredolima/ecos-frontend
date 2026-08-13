@@ -16,7 +16,7 @@ export function ProjectList() {
         start_date: '',
         end_date: '',
         employee_ids: [],
-        user_ids: [] // <- Adicionado para suportar usuários admin/collaborator
+        user_ids: []
     });
 
     const fetchData = () => {
@@ -24,7 +24,7 @@ export function ProjectList() {
         Promise.all([
             api.get('/projects'),
             api.get('/employees'),
-            api.get('/users') // Busca também os usuários
+            api.get('/users')
         ])
             .then(([projRes, empRes, userRes]) => {
                 setProjects(projRes.data.data || projRes.data);
@@ -52,7 +52,7 @@ export function ProjectList() {
                 start_date: project.start_date ? project.start_date.split('T')[0] : '',
                 end_date: project.end_date ? project.end_date.split('T')[0] : '',
                 employee_ids: project.employees ? project.employees.map(e => e.id) : [],
-                user_ids: project.users ? project.users.map(u => u.id) : [] // Carrega usuários vinculados se houver
+                user_ids: project.users ? project.users.map(u => u.id) : []
             });
         } else {
             setEditingProject(null);
@@ -97,7 +97,7 @@ export function ProjectList() {
         const payload = {
             ...formData,
             employees: formData.employee_ids,
-            users: formData.user_ids // Envia os IDs dos usuários para o backend
+            users: formData.user_ids
         };
 
         const action = editingProject
@@ -124,12 +124,12 @@ export function ProjectList() {
 
     return (
         <div className="max-w-4xl mx-auto p-4 relative">
-            <div className="flex justify-between items-center mb-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-4">
                 <h2 className="text-xl font-bold text-gray-800">Projetos Cadastrados</h2>
                 <button
                     type="button"
                     onClick={() => handleOpenModal()}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer"
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer w-full sm:w-auto"
                 >
                     + Novo Projeto
                 </button>
@@ -143,25 +143,25 @@ export function ProjectList() {
                         const totalLinked = employeeCount + userCount;
 
                         return (
-                            <li key={proj.id} className="p-4 flex justify-between items-center">
-                                <div>
-                                    <p className="font-semibold text-gray-900">{proj.title}</p>
-                                    <p className="text-sm text-gray-500">
-                                        Status: {proj.status || 'N/A'} | Envolvidos vinculados: {totalLinked}
+                            <li key={proj.id} className="p-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                                <div className="min-w-0 flex-1">
+                                    <p className="font-semibold text-gray-900 truncate">{proj.title}</p>
+                                    <p className="text-sm text-gray-500 break-words">
+                                        Status: <span className="font-medium text-gray-700">{proj.status || 'N/A'}</span> | Envolvidos vinculados: {totalLinked}
                                     </p>
                                 </div>
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center space-x-2 self-end sm:self-auto">
                                     <button
                                         type="button"
                                         onClick={() => handleOpenModal(proj)}
-                                        className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
+                                        className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer"
                                     >
                                         Editar
                                     </button>
                                     <button
                                         type="button"
                                         onClick={() => handleDelete(proj.id)}
-                                        className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
+                                        className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer"
                                     >
                                         Excluir
                                     </button>
@@ -212,7 +212,7 @@ export function ProjectList() {
                                     className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                                 />
                             </div>
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Data de Início</label>
                                     <input
@@ -254,7 +254,7 @@ export function ProjectList() {
                                 </div>
                             </div>
 
-                            {/* Seção de Usuários (Admin / Collaborator) */}
+                            {/* Seção de Usuários */}
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">Usuários Vinculados (Admin / Collaborator)</label>
                                 <div className="max-h-32 overflow-y-auto border border-gray-200 rounded-lg p-2 space-y-1 bg-gray-50">

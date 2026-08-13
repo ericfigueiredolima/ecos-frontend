@@ -82,25 +82,25 @@ export function UserList() {
 
                 <div className="divide-y divide-gray-200">
                     {users.map((user) => (
-                        <div key={user.id} className="py-4 flex justify-between items-center">
-                            <div>
-                                <p className="font-semibold text-gray-900">{user.name}</p>
-                                <p className="text-sm text-gray-500">
-                                    {user.email} | Função: {user.role || 'N/A'}
+                        <div key={user.id} className="py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                            <div className="min-w-0 flex-1">
+                                <p className="font-semibold text-gray-900 truncate">{user.name}</p>
+                                <p className="text-sm text-gray-500 break-words">
+                                    {user.email} | Função: <span className="font-medium text-gray-700">{user.role || 'N/A'}</span>
                                 </p>
                             </div>
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-2 self-end sm:self-auto">
                                 <button
                                     type="button"
                                     onClick={() => handleOpenEditModal(user)}
-                                    className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
+                                    className="bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer"
                                 >
                                     Editar
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => handleDelete(user.id)}
-                                    className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
+                                    className="bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer"
                                 >
                                     Excluir
                                 </button>
