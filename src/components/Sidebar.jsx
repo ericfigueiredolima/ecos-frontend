@@ -3,28 +3,46 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 
 export function Sidebar() {
-  const [isOpen, setIsOpen] = useState(true); // Expandido/recolhido no desktop
-  const [isMobileOpen, setIsMobileOpen] = useState(false); // Gaveta no mobile
+  const [isOpen, setIsOpen] = useState(true);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [userEmail, setUserEmail] = useState(null);
+  const [userRole, setUserRole] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
 
-  const menuItems = [
-    { name: 'Usuários', path: '/users', icon: '👤' },
-    { name: 'Funcionários', path: '/employees', icon: '👥' },
-    { name: 'Projetos', path: '/projects', icon: '📁' },
-    { name: 'Agenda', path: '/calendar', icon: '📅' },
-  ];
-
   useEffect(() => {
-    async function fetchUser() {
+    async function fetchUserData() {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
         setUserEmail(user.email);
+
+        // Busca o papel (role) do usuário na tabela 'users' pelo e-mail ou id
+        const { data: userData, error } = await supabase
+          .from('users')
+          .select('role')
+          .eq('email', user.email)
+          .single();
+
+        if (!error && userData) {
+          setUserRole(userData.role);
+        }
       }
     }
-    fetchUser();
+    fetchUserData();
   }, []);
+
+  // Define os itens do menu com base na role
+  const allMenuItems = [
+    { name: 'Usuários', path: '/users', icon: '👤', roles: ['admin'] },
+    { name: 'Funcionários', path: '/employees', icon: '👥', roles: ['admin'] },
+    { name: 'Projetos', path: '/projects', icon: '📁', roles: ['admin'] },
+    { name: 'Agenda', path: '/calendar', icon: '📅', roles: ['admin', 'collaborator'] },
+  ];
+
+  // Filtra os itens de acordo com a role do usuário atual (se ainda estiver carregando, mostra apenas a agenda ou aguarda)
+  const menuItems = allMenuItems.filter(item => 
+    userRole ? item.roles.includes(userRole) : item.path === '/calendar'
+  );
 
   const handleLogout = async () => {
     const { error } = await supabase.auth.signOut();
@@ -37,7 +55,7 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Botão flutuante do menu hamburguer para celular (fica visível apenas no mobile quando a barra está fechada) */}
+      {/* Botão flutuante do menu hamburguer para celular */}
       <div className="md:hidden fixed top-4 left-4 z-40">
         <button
           onClick={() => setIsMobileOpen(true)}
@@ -68,7 +86,7 @@ export function Sidebar() {
         `}
       >
         <div>
-          {/* Cabeçalho no Desktop (Botão de recolher/expandir) */}
+          {/* Cabeçalho no Desktop */}
           <div className="hidden md:flex items-center justify-between p-4 border-b border-slate-800">
             {isOpen && <span className="font-bold text-white text-lg tracking-wide">ECOS</span>}
             <button
@@ -80,7 +98,7 @@ export function Sidebar() {
             </button>
           </div>
 
-          {/* Cabeçalho no Mobile (Botão para fechar a gaveta) */}
+          {/* Cabeçalho no Mobile */}
           <div className="flex md:hidden items-center justify-between p-4 border-b border-slate-800">
             <span className="font-bold text-white text-lg tracking-wide">ECOS</span>
             <button
@@ -91,7 +109,7 @@ export function Sidebar() {
             </button>
           </div>
 
-          {/* Links de navegação */}
+          {/* Links de navegação filtrados */}
           <nav className="p-4 space-y-2">
             {menuItems.map((item) => {
               const isActive = location.pathname === item.path;
@@ -99,7 +117,7 @@ export function Sidebar() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  onClick={() => setIsMobileOpen(false)} // Fecha automaticamente ao navegar no celular
+                  onClick={() => setIsMobileOpen(false)}
                   className={`flex items-center space-x-3 p-3 rounded-lg transition-colors ${
                     isActive 
                       ? 'bg-blue-600 text-white font-medium' 

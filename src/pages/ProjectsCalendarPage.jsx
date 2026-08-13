@@ -4,6 +4,7 @@ import moment from 'moment';
 import 'moment/locale/pt-br';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import api from '../services/api';
+import { supabase } from '../services/supabase';
 
 moment.locale('pt-br');
 const localizer = momentLocalizer(moment);
@@ -31,12 +32,38 @@ export function ProjectsCalendarPage() {
     const [view, setView] = useState('month');
 
     useEffect(() => {
-        api.get('/projects')
-            .then(res => {
-                const projectsData = res.data.data || res.data;
-                setProjects(projectsData);
+        async function fetchProjectsAndFilter() {
+            try {
+                // 1. Pega o usuário autenticado atual no Supabase
+                const { data: { user } } = await supabase.auth.getUser();
+                
+                // 2. Busca a role e dados do usuário na tabela 'users' pelo e-mail
+                let currentUser = null;
+                if (user) {
+                    const { data: userData } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('email', user.email)
+                        .single();
+                    currentUser = userData;
+                }
 
-                const formattedEvents = projectsData.map(p => ({
+                // 3. Busca os projetos da API
+                const res = await api.get('/projects');
+                const allProjects = res.data.data || res.data;
+
+                // 4. Aplica a regra: Se for 'collaborator', filtra apenas projetos onde ele está vinculado
+                let filteredProjects = allProjects;
+                if (currentUser && currentUser.role === 'collaborator') {
+                    filteredProjects = allProjects.filter(proj => 
+                        proj.users && proj.users.some(u => u.id === currentUser.id)
+                    );
+                }
+
+                setProjects(filteredProjects);
+
+                // 5. Formata os eventos para o calendário
+                const formattedEvents = filteredProjects.map(p => ({
                     title: p.title,
                     start: new Date(p.start_date + 'T00:00:00'),
                     end: p.end_date ? new Date(p.end_date + 'T23:59:59') : new Date(p.start_date + 'T23:59:59'),
@@ -44,8 +71,13 @@ export function ProjectsCalendarPage() {
                     resource: p
                 }));
                 setEvents(formattedEvents);
-            })
-            .catch(err => console.error("Erro ao carregar projetos para o calendário:", err));
+
+            } catch (err) {
+                console.error("Erro ao carregar projetos para o calendário:", err);
+            }
+        }
+
+        fetchProjectsAndFilter();
     }, []);
 
     const onNavigate = (newDate) => {
@@ -102,12 +134,11 @@ export function ProjectsCalendarPage() {
                                     <th className="p-3 font-semibold">Período / Data</th>
                                     <th className="p-3 font-semibold">Projeto</th>
                                     <th className="p-3 font-semibold">Status</th>
-                                    <th className="p-3 font-semibold">Envolvidos</th> {/* Renomeado */}
+                                    <th className="p-3 font-semibold">Envolvidos</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200">
                                 {projects.map((proj) => {
-                                    // Lógica para listar funcionários E usuários
                                     const employeeNames = proj.employees ? proj.employees.map(e => e.full_name) : [];
                                     const userNames = proj.users ? proj.users.map(u => u.name || u.email) : [];
 
@@ -132,7 +163,13 @@ export function ProjectsCalendarPage() {
                                         </tr>
                                     );
                                 })}
-                                {/* ... restante do código */}
+                                {projects.length === 0 && (
+                                    <tr>
+                                        <td colSpan="4" className="p-4 text-center text-gray-500">
+                                            Nenhum projeto encontrado para este período.
+                                        </td>
+                                    </tr>
+                                )}
                             </tbody>
                         </table>
                     </div>
