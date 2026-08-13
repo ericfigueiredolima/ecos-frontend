@@ -31,7 +31,7 @@ export function ProjectsCalendarPage() {
     const [projects, setProjects] = useState([]);
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState('month');
-    
+
     // Estados para controle do modal de detalhes
     const [selectedProject, setSelectedProject] = useState(null);
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
@@ -40,7 +40,7 @@ export function ProjectsCalendarPage() {
         async function fetchProjectsAndFilter() {
             try {
                 const { data: { user } } = await supabase.auth.getUser();
-                
+
                 let currentUser = null;
                 if (user) {
                     const { data: userData } = await supabase
@@ -56,7 +56,7 @@ export function ProjectsCalendarPage() {
 
                 let filteredProjects = allProjects;
                 if (currentUser && currentUser.role === 'collaborator') {
-                    filteredProjects = allProjects.filter(proj => 
+                    filteredProjects = allProjects.filter(proj =>
                         proj.users && proj.users.some(u => u.id === currentUser.id)
                     );
                 }
@@ -96,8 +96,8 @@ export function ProjectsCalendarPage() {
 
     return (
         <div className="h-[85vh] p-4 bg-white rounded-xl shadow-md flex flex-col">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-800">Agenda de Projetos</h2>
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-4 gap-2">
+                <h2 className="text-xl font-bold text-gray-800 text-center sm:text-left">Agenda de Projetos</h2>
                 <div className="flex bg-gray-100 p-1 rounded-lg">
                     <button
                         onClick={() => setView('month')}
@@ -153,8 +153,8 @@ export function ProjectsCalendarPage() {
                                         : 'Nenhum responsável vinculado';
 
                                     return (
-                                        <tr 
-                                            key={proj.id} 
+                                        <tr
+                                            key={proj.id}
                                             onClick={() => { setSelectedProject(proj); setIsDetailModalOpen(true); }}
                                             className="hover:bg-gray-50 transition-colors cursor-pointer"
                                         >
@@ -186,8 +186,8 @@ export function ProjectsCalendarPage() {
             </div>
 
             {/* Modal Detalhes do Projeto */}
-            <BaseModal 
-                isOpen={isDetailModalOpen} 
+            <BaseModal
+                isOpen={isDetailModalOpen}
                 title={selectedProject?.title || 'Detalhes do Projeto'}
             >
                 {selectedProject && (
@@ -209,7 +209,7 @@ export function ProjectsCalendarPage() {
                             <div>
                                 <span className="block font-semibold text-gray-900 mb-1">Período:</span>
                                 <p className="text-gray-600">
-                                    {moment(selectedProject.start_date).format('DD/MM/YYYY')} 
+                                    {moment(selectedProject.start_date).format('DD/MM/YYYY')}
                                     {selectedProject.end_date ? ` até ${moment(selectedProject.end_date).format('DD/MM/YYYY')}` : ''}
                                 </p>
                             </div>
