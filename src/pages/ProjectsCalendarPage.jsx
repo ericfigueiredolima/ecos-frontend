@@ -5,6 +5,7 @@ import 'moment/locale/pt-br';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import api from '../services/api';
 import { supabase } from '../services/supabase';
+import { BaseModal } from '../components/BaseModal';
 
 moment.locale('pt-br');
 const localizer = momentLocalizer(moment);
@@ -30,14 +31,16 @@ export function ProjectsCalendarPage() {
     const [projects, setProjects] = useState([]);
     const [date, setDate] = useState(new Date());
     const [view, setView] = useState('month');
+    
+    // Estados para controle do modal de detalhes
+    const [selectedProject, setSelectedProject] = useState(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
     useEffect(() => {
         async function fetchProjectsAndFilter() {
             try {
-                // 1. Pega o usuário autenticado atual no Supabase
                 const { data: { user } } = await supabase.auth.getUser();
                 
-                // 2. Busca a role e dados do usuário na tabela 'users' pelo e-mail
                 let currentUser = null;
                 if (user) {
                     const { data: userData } = await supabase
@@ -48,11 +51,9 @@ export function ProjectsCalendarPage() {
                     currentUser = userData;
                 }
 
-                // 3. Busca os projetos da API
                 const res = await api.get('/projects');
                 const allProjects = res.data.data || res.data;
 
-                // 4. Aplica a regra: Se for 'collaborator', filtra apenas projetos onde ele está vinculado
                 let filteredProjects = allProjects;
                 if (currentUser && currentUser.role === 'collaborator') {
                     filteredProjects = allProjects.filter(proj => 
@@ -62,7 +63,6 @@ export function ProjectsCalendarPage() {
 
                 setProjects(filteredProjects);
 
-                // 5. Formata os eventos para o calendário
                 const formattedEvents = filteredProjects.map(p => ({
                     title: p.title,
                     start: new Date(p.start_date + 'T00:00:00'),
@@ -88,11 +88,16 @@ export function ProjectsCalendarPage() {
         setView(newView);
     };
 
+    // Disparado ao clicar em um evento no calendário em formato de mês
+    const handleSelectEvent = (event) => {
+        setSelectedProject(event.resource);
+        setIsDetailModalOpen(true);
+    };
+
     return (
         <div className="h-[85vh] p-4 bg-white rounded-xl shadow-md flex flex-col">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-800">Agenda de Projetos</h2>
-                {/* Botões de alternância rápidos caso queira controlar a view */}
                 <div className="flex bg-gray-100 p-1 rounded-lg">
                     <button
                         onClick={() => setView('month')}
@@ -123,10 +128,10 @@ export function ProjectsCalendarPage() {
                         onView={onView}
                         views={['month']}
                         messages={messages}
+                        onSelectEvent={handleSelectEvent} // <--- Ativa o clique no evento
                         popup
                     />
                 ) : (
-                    /* Visão de Agenda customizada sem coluna de hora e com os envolvidos */
                     <div className="h-full overflow-y-auto border border-gray-200 rounded-lg">
                         <table className="w-full border-collapse text-left text-sm">
                             <thead className="bg-gray-50 sticky top-0 border-b border-gray-200 text-gray-700">
@@ -148,7 +153,11 @@ export function ProjectsCalendarPage() {
                                         : 'Nenhum responsável vinculado';
 
                                     return (
-                                        <tr key={proj.id} className="hover:bg-gray-50 transition-colors">
+                                        <tr 
+                                            key={proj.id} 
+                                            onClick={() => { setSelectedProject(proj); setIsDetailModalOpen(true); }}
+                                            className="hover:bg-gray-50 transition-colors cursor-pointer"
+                                        >
                                             <td className="p-3 text-gray-600 whitespace-nowrap">
                                                 {moment(proj.start_date).format('DD/MM/YYYY')}
                                                 {proj.end_date ? ` até ${moment(proj.end_date).format('DD/MM/YYYY')}` : ''}
@@ -175,6 +184,81 @@ export function ProjectsCalendarPage() {
                     </div>
                 )}
             </div>
+
+            {/* Modal Detalhes do Projeto */}
+            <BaseModal 
+                isOpen={isDetailModalOpen} 
+                title={selectedProject?.title || 'Detalhes do Projeto'}
+            >
+                {selectedProject && (
+                    <div className="space-y-4 text-sm text-gray-700">
+                        <div>
+                            <span className="block font-semibold text-gray-900 mb-1">Descrição:</span>
+                            <p className="bg-gray-50 p-3 rounded-lg border border-gray-100 whitespace-pre-wrap">
+                                {selectedProject.description || 'Nenhuma descrição informada.'}
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
+                            <div>
+                                <span className="block font-semibold text-gray-900 mb-1">Status:</span>
+                                <span className="inline-block bg-blue-50 text-blue-700 px-2.5 py-1 rounded-full text-xs font-medium">
+                                    {selectedProject.status || 'N/A'}
+                                </span>
+                            </div>
+                            <div>
+                                <span className="block font-semibold text-gray-900 mb-1">Período:</span>
+                                <p className="text-gray-600">
+                                    {moment(selectedProject.start_date).format('DD/MM/YYYY')} 
+                                    {selectedProject.end_date ? ` até ${moment(selectedProject.end_date).format('DD/MM/YYYY')}` : ''}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div>
+                            <span className="block font-semibold text-gray-900 mb-1">Funcionários Vinculados:</span>
+                            <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-100 max-h-28 overflow-y-auto space-y-1">
+                                {selectedProject.employees && selectedProject.employees.length > 0 ? (
+                                    selectedProject.employees.map(emp => (
+                                        <div key={emp.id} className="text-xs text-gray-600 flex justify-between">
+                                            <span className="font-medium text-gray-800">{emp.full_name}</span>
+                                            <span className="text-gray-400">{emp.position}</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-xs text-gray-400 italic">Nenhum funcionário vinculado.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div>
+                            <span className="block font-semibold text-gray-900 mb-1">Usuários Vinculados:</span>
+                            <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-100 max-h-28 overflow-y-auto space-y-1">
+                                {selectedProject.users && selectedProject.users.length > 0 ? (
+                                    selectedProject.users.map(usr => (
+                                        <div key={usr.id} className="text-xs text-gray-600 flex justify-between">
+                                            <span className="font-medium text-gray-800">{usr.name || usr.email}</span>
+                                            <span className="text-gray-400">({usr.role})</span>
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-xs text-gray-400 italic">Nenhum usuário vinculado.</p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                            <button
+                                type="button"
+                                onClick={() => setIsDetailModalOpen(false)}
+                                className="btn-secondary"
+                            >
+                                Fechar
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </BaseModal>
         </div>
     );
 }
