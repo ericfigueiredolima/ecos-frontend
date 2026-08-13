@@ -9,6 +9,7 @@ export function Sidebar() {
     const [userRole, setUserRole] = useState(null);
     const location = useLocation();
     const navigate = useNavigate();
+    const logoUrl = "https://static.wixstatic.com/media/0f561c_61ec1382ff654e8e8c25bbd8491f6977~mv2.png/v1/fill/w_1920,h_1080,al_c/0f561c_61ec1382ff654e8e8c25bbd8491f6977~mv2.png";
 
     useEffect(() => {
         async function fetchUserData() {
@@ -16,7 +17,6 @@ export function Sidebar() {
             if (user) {
                 setUserEmail(user.email);
 
-                // Busca o papel (role) do usuário na tabela 'users' pelo e-mail ou id
                 const { data: userData, error } = await supabase
                     .from('users')
                     .select('role')
@@ -31,7 +31,6 @@ export function Sidebar() {
         fetchUserData();
     }, []);
 
-    // Define os itens do menu com base na role
     const allMenuItems = [
         { name: 'Usuários', path: '/users', icon: '👤', roles: ['admin'] },
         { name: 'Funcionários', path: '/employees', icon: '👥', roles: ['admin'] },
@@ -39,7 +38,6 @@ export function Sidebar() {
         { name: 'Agenda', path: '/calendar', icon: '📅', roles: ['admin', 'collaborator'] },
     ];
 
-    // Filtra os itens de acordo com a role do usuário atual (se ainda estiver carregando, mostra apenas a agenda ou aguarda)
     const menuItems = allMenuItems.filter(item =>
         userRole ? item.roles.includes(userRole) : item.path === '/calendar'
     );
@@ -88,19 +86,48 @@ export function Sidebar() {
                 <div>
                     {/* Cabeçalho no Desktop */}
                     <div className="hidden md:flex items-center justify-between p-4 border-b border-slate-800">
-                        {isOpen && <span className="font-bold text-white text-lg tracking-wide">ECOS</span>}
+                        {isOpen ? (
+                            <div className="flex items-center w-full px-2 py-1">
+                                <img 
+                                    src={logoUrl} 
+                                    alt="ECOS Logo" 
+                                    className="h-10 w-full object-contain filter brightness-0 invert"
+                                />
+                            </div>
+                        ) : (
+                            <div className="mx-auto">
+                                <span className="font-bold text-white text-sm">ECOS</span>
+                            </div>
+                        )}
                         <button
                             onClick={() => setIsOpen(!isOpen)}
-                            className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors ml-auto cursor-pointer"
+                            className={`p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer ml-1 ${!isOpen && 'hidden'}`}
                             title={isOpen ? "Recolher menu" : "Expandir menu"}
                         >
                             {isOpen ? '◀' : '▶'}
                         </button>
                     </div>
 
+                    {/* Botão de expandir quando recolhido no desktop centralizado */}
+                    {!isOpen && (
+                        <div className="hidden md:flex justify-center p-2 border-b border-slate-800">
+                            <button
+                                onClick={() => setIsOpen(true)}
+                                className="p-2 rounded-lg hover:bg-slate-800 text-slate-400 hover:text-white transition-colors cursor-pointer"
+                                title="Expandir menu"
+                            >
+                                ▶
+                            </button>
+                        </div>
+                    )}
+
                     {/* Cabeçalho no Mobile */}
                     <div className="flex md:hidden items-center justify-between p-4 border-b border-slate-800">
-                        <span className="font-bold text-white text-lg tracking-wide">ECOS</span>
+                        <img 
+                            src={logoUrl} 
+                            alt="ECOS Logo" 
+                            className="h-9 w-auto object-contain filter brightness-0 invert"
+                        />
                         <button
                             onClick={() => setIsMobileOpen(false)}
                             className="p-2 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors"
@@ -119,9 +146,10 @@ export function Sidebar() {
                                     to={item.path}
                                     onClick={() => setIsMobileOpen(false)}
                                     className={`flex items-center space-x-3 p-3 rounded-lg transition-colors ${isActive
-                                            ? 'bg-blue-600 text-white font-medium'
-                                            : 'hover:bg-slate-800 hover:text-white'
+                                        ? 'bg-blue-600 text-white font-medium'
+                                        : 'hover:bg-slate-800 hover:text-white'
                                         }`}
+                                    title={!isOpen ? item.name : ''}
                                 >
                                     <span className="text-xl">{item.icon}</span>
                                     {(isOpen || isMobileOpen) && <span className="text-sm truncate">{item.name}</span>}

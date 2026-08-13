@@ -1,30 +1,10 @@
+// src/components/RoleProtectedRoute.jsx (ou onde ele estiver localizado)
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../services/supabase';
 import { UnauthorizedPage } from '../pages/UnauthorizedPage';
-import { Sidebar } from '../components/Sidebar';
-import { Routes, Route } from 'react-router-dom';
-import { UsersPage } from '../pages/UsersPage';
-import { EmployeesPage } from '../pages/EmployeesPage';
-import { ProjectsPage } from '../pages/ProjectsPage';
-import { ProjectsCalendarPage } from '../pages/ProjectsCalendarPage'; // <- 1. Importação da página de agenda
+import { Navigate } from 'react-router-dom';
 
-function InternalLayout() {
-    return (
-        <div className="min-h-screen bg-gray-50 flex">
-            <Sidebar />
-            <main className="flex-1 p-6 overflow-y-auto">
-                <Routes>
-                    <Route path="/users" element={<UsersPage />} />
-                    <Route path="/employees" element={<EmployeesPage />} />
-                    <Route path="/projects" element={<ProjectsPage />} />
-                    <Route path="/calendar" element={<ProjectsCalendarPage />} /> {/* <- 2. Rota adicionada */}
-                </Routes>
-            </main>
-        </div>
-    );
-}
-
-export function RoleProtectedRoute() {
+export function RoleProtectedRoute({ children, allowedRoles }) {
     const [userRole, setUserRole] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -37,22 +17,17 @@ export function RoleProtectedRoute() {
                     const userEmail = session.user.email;
                     const userName = session.user.user_metadata?.full_name || session.user.user_metadata?.name || userEmail.split('@')[0];
 
-                    // 1. Tenta buscar o usuário na tabela public.users
                     let { data, error } = await supabase
                         .from('users')
                         .select('role')
                         .eq('email', userEmail)
                         .maybeSingle();
 
-                    // 2. Se o usuário não existe, cadastra chamando a API do backend
                     if (!data && !error) {
-                        console.log("Usuário não encontrado. Cadastrando via backend...");
                         try {
                             const response = await fetch('http://localhost:3000/api/users', {
                                 method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
+                                headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({
                                     name: userName,
                                     email: userEmail,
@@ -69,11 +44,7 @@ export function RoleProtectedRoute() {
                         }
                     }
 
-                    if (!data) {
-                        setUserRole('não autorizado');
-                    } else {
-                        setUserRole(data.role);
-                    }
+                    setUserRole(data?.role || 'não autorizado');
                 } else {
                     setUserRole('não autorizado');
                 }
@@ -96,5 +67,11 @@ export function RoleProtectedRoute() {
         return <UnauthorizedPage />;
     }
 
-    return <InternalLayout />;
+    // Se foram especificadas roles permitidas e a do usuário não está na lista
+    if (allowedRoles && !allowedRoles.includes(userRole)) {
+        // Redireciona colaboradores tentando acessar área de admin para a agenda de forma segura
+        return <Navigate to="/calendar" replace />;
+    }
+
+    return children;
 }

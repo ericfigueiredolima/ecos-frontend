@@ -6,6 +6,7 @@ export function LoginPage() {
     const navigate = useNavigate();
     const location = useLocation();
     const [errorMessage, setErrorMessage] = useState(null);
+    const logoUrl = "https://static.wixstatic.com/media/0f561c_61ec1382ff654e8e8c25bbd8491f6977~mv2.png/v1/fill/w_1920,h_1080,al_c/0f561c_61ec1382ff654e8e8c25bbd8491f6977~mv2.png";
 
     // Captura erros retornados na URL pelo Supabase se o login falhar
     useEffect(() => {
@@ -51,9 +52,17 @@ export function LoginPage() {
     };
 
     return (
-        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white">
-            <div className="p-8 bg-slate-800 rounded-xl shadow-lg w-96 text-center space-y-4">
-                <h1 className="text-2xl font-bold">ECOS - Gestão</h1>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-900 text-white p-4">
+            <div className="p-8 bg-slate-800 rounded-xl shadow-lg w-96 text-center space-y-6">
+                
+                {/* Logo grande e destacada */}
+                <div className="flex justify-center w-full px-2 mb-2">
+                    <img 
+                        src={logoUrl} 
+                        alt="ECOS Logo" 
+                        className="h-20 w-full object-contain filter brightness-0 invert"
+                    />
+                </div>
 
                 <p className="text-sm text-slate-300">
                     Faça login utilizando sua conta Google autorizada para acessar o sistema.
