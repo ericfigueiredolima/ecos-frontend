@@ -7,3 +7,22 @@ body {
   background-color: #f9fafb; /* Cinza claro padrão do Tailwind (gray-50) */
   color: #111827; /* Cinza escuro padrão (gray-900) */
 }
+
+/* src/index.css */
+@layer components {
+  .input-field {
+    @apply w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+  .btn-primary {
+    @apply bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer;
+  }
+  .btn-secondary {
+    @apply bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer;
+  }
+  .btn-edit {
+    @apply bg-amber-100 hover:bg-amber-200 text-amber-800 px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer;
+  }
+  .btn-delete {
+    @apply bg-red-100 hover:bg-red-200 text-red-800 px-3 py-1.5 rounded text-xs font-medium transition-colors cursor-pointer;
+  }
+}
