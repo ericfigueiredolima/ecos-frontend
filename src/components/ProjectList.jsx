@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import api from '../services/api';
-import { PageHeader } from '../components/PageHeader';
 import { BaseModal } from '../components/BaseModal';
 
 export function ProjectList() {
@@ -110,12 +109,10 @@ export function ProjectList() {
     if (loading) return <p className="p-4">Carregando projetos...</p>;
 
     return (
-        <div className="max-w-4xl mx-auto p-4 relative">
-            <PageHeader 
-                title="Projetos Cadastrados" 
-                buttonText="+ Novo Projeto" 
-                onButtonClick={() => handleOpenModal()} 
-            />
+        <div className="max-w-4xl mx-auto p-4 pb-24 relative">
+            <div className="mb-6">
+                <h2 className="text-xl font-bold text-gray-800">Projetos Cadastrados</h2>
+            </div>
 
             <div className="bg-white shadow-md rounded-lg overflow-hidden border border-gray-200">
                 <ul className="divide-y divide-gray-200">
@@ -142,6 +139,16 @@ export function ProjectList() {
                     )}
                 </ul>
             </div>
+
+            {/* Botão Flutuante (FAB) */}
+            <button 
+                type="button"
+                onClick={() => handleOpenModal()} 
+                className="fixed bottom-6 right-6 z-50 w-14 h-14 md:w-28 md:h-28 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl md:rounded-3xl shadow-2xl flex items-center justify-center text-3xl md:text-6xl font-light transition-all duration-200 hover:scale-105 active:scale-95"
+                title="Novo Projeto"
+            >
+                +
+            </button>
 
             <BaseModal isOpen={isModalOpen} title={editingProject ? 'Editar Projeto' : 'Novo Projeto'}>
                 <form onSubmit={handleSubmit} className="space-y-4">
