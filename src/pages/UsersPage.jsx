@@ -9,13 +9,15 @@ export function UsersPage() {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) return;
 
-        const response = await fetch('http://localhost:3000/api/users', {
+        const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+        const response = await fetch(`${backendUrl}/api/users`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({
-            name: user.user_metadata?.full_name || user.email, // Tentando 'name' que é comum em APIs
+            name: user.user_metadata?.full_name || user.email,
             email: user.email,
             role: 'não autorizado',
           }),
