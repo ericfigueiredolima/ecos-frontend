@@ -157,8 +157,9 @@ export function UserList() {
                             onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                             className="input-field"
                         >
-                            <option value="collaborator">Collaborator</option>
-                            <option value="admin">Admin</option>
+                            <option value="collaborator">collaborator</option>
+                            <option value="admin">admin</option>
+                            <option value="não autorizado">não autorizado</option>
                         </select>
                     </div>
 
